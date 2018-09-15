@@ -1,7 +1,7 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Graph Generator. Creates undirected wieghted graphs for test data to be used
+ * for testing time complexities of certain algorithms. I.E. Prims Minimum Spanning Tree, KruskalsMST, etc.
+ * NOTE: NEEDS MORE COMMENTING AND HAS DUPLICATE CODE 
  */
 package graphgenerator;
 
@@ -16,7 +16,8 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author bperado
+ * @author Bradley peradotto
+ * @version 1.0
  */
 public class GraphGenerator {
 
@@ -48,37 +49,73 @@ public class GraphGenerator {
             }
         } else if (args.length == 3 || args.length == 4) {
             String type;
+            String toFile;
+            String fileName = "";
+            int vertInt;
+            int topweightInt;
+            int typeInt;
+            double densityDouble;
             boolean valid = true;
-            if (validateInt(args[0]) < 0) {
+            if ((vertInt = validateInt(args[0])) < 0) {
                 System.err.println("Not a valid entry for vertices.");
                 valid = false;
             }
-            if (validateInt(args[1]) < 0) {
+            if ((topweightInt = validateInt(args[1])) < 0) {
                 System.err.println("Not a valid number for highest weight.");
                 valid = false;
             }
-            if (validateDouble(args[2]) < 0) {
+            if ((densityDouble = validateDouble(args[2])) < 0) {
                 System.err.println("Not a valid double between 0.01 and 1.0.");
                 valid = false;
             }
             if (!valid) {
                 System.exit(1);
             } else {
+                boolean fileArgExist = false;
                 if (args.length == 4) {
-                    file = new File(args[4]);
+                    fileName = args[3];
+                    file = new File(fileName);
                     if (!checkFileName(file)) {
                         System.err.println("File name error.");
                         System.exit(1);
+                    } else {
+                        fileArgExist = true;                   
                     }
 
                 }
                 System.out.println("\nNumber of Vertices: " + args[0] + ". Weight ranges from [0-" + args[1] + "]. Graph Density: " + args[2] + ".");
-                System.out.print("Would you like to generate a graph of letter titled veticies or integer titled vertices? ");
+                System.out.print("\nWould you like to generate a graph of letter titled veticies or integer titled vertices? ");
 
                 do {
                     System.out.print("(Enter 0 for letters. 1 for integers) ");
                     type = in.nextLine();
-                } while (validateType(type) < 0);
+                } while ((typeInt = validateType(type)) < 0);
+
+                Graph doneGraph = generateGraph(vertInt, topweightInt, densityDouble, typeInt);
+                boolean correctInput = true;
+                if (!fileArgExist) {
+                    do {
+                        System.out.print(" Do you want to save graph to a file? (Enter Y for yes. N for no) ");
+                        toFile = in.nextLine();
+                        if (toFile.compareToIgnoreCase("Y") == 0) {
+                            System.out.print("\n Please enter the file path/name. ");
+
+                            fileName = in.nextLine();
+                            printToFile(doneGraph, fileName);
+                            correctInput = true;
+
+                        } else if (toFile.compareToIgnoreCase("N") == 0) {
+                            System.out.print(doneGraph.getFormattedGraph());
+                            break;
+                        } else {
+                            System.out.println("\nPlease enter Y or N.");
+                            correctInput = false;
+                        }
+                    } while (!correctInput);
+                    System.out.println();
+                } else {
+                    printToFile(doneGraph, fileName);
+                }
             }
         } else {
             System.err.println("Command not regognized");
@@ -258,19 +295,21 @@ public class GraphGenerator {
         return finalString;
     }
 
-    private static void printToFile(Graph g, String fileName) {
+    private static void printToFile(Graph g, String file) {
         FileWriter fileWriter = null;
-        
-        if (fileName.lastIndexOf("/") > 0) {
-            String directoryName = fileName.substring(0, fileName.lastIndexOf("/"));
+        String fileName = file;                // initalize as just enitre filename
+        String directoryName = "";
+        if (file.lastIndexOf("/") > 0) {
+            fileName = file.substring(file.lastIndexOf("/"));            // if it contains a directory then split if off
+            directoryName = file.substring(0, file.lastIndexOf("/"));    // get just the directory names before the lasst file slash "/"
             File dir = new File(directoryName);
-            if (!dir.exists()) {
+            if (!dir.exists()) {                                        // make directory if not exists
                 dir.mkdirs();
             }
         }
-       
-        try {
-            fileWriter = new FileWriter(fileName);
+        String saveFile = directoryName + "v" + g.getNumVertices() + "e" + g.getNumEdges() + fileName;           // create new save file name that adds the number of vertices 
+        try {                                                                                                 // note if not directroy then directory will be empty sting
+            fileWriter = new FileWriter(saveFile);
             try (PrintWriter printWriter = new PrintWriter(fileWriter)) {
                 printWriter.print(g.getFormattedGraph() + " ");
                 printWriter.close();

@@ -21,11 +21,13 @@ public class Graph<T> {
     private Map<Vertex, ArrayList<Edge>> vertices;
     private ArrayList<Edge> edges;
     private int numVertices;
+    private int numEdges;
 
     public Graph() {
         edges = new ArrayList<>();
         vertices = new HashMap<>();
         numVertices = 0;
+        numEdges = 0;
     }
 
     /**
@@ -47,7 +49,8 @@ public class Graph<T> {
         ArrayList<Edge> temp1 = new ArrayList<>();
         ArrayList<Edge> temp2 = new ArrayList<>();
         Edge e = new Edge(v1, destination, weight);
-        edges.add(e);  // we are alrady adding the desitation as and edge so onlyd dong v1 as vertex not v2
+        edges.add(e);                             // we are alrady adding the desitation as and edge so only dong v1 as vertex not v2
+        numEdges ++;
         if (!(vertices.containsKey(v1))) {
             numVertices++;
             temp1.add(e);
@@ -60,6 +63,7 @@ public class Graph<T> {
         }
         Edge f = new Edge(v2, source, weight);   // new edge with detination now as vertex adn source as next destination
         edges.add(f);
+        numEdges ++;
         if (!(vertices.containsKey(v2))) {
             numVertices++;
             temp2.add(f);
@@ -106,6 +110,11 @@ public class Graph<T> {
     public int getNumVertices() {
         return numVertices;
     }
+
+    public int getNumEdges() {
+        return numEdges;
+    }
+   
 
     /**
      * Quick method for sorting the graph edge nodes in order by weight.
