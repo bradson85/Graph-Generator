@@ -41,7 +41,7 @@ public class Graph<T> {
      * @param destination
      * @param weight
      */
-    public<T> void addEdgeToGraph(T source, T destination, int weight) {
+    public <T> void addEdgeToGraph(T source, T destination, int weight) {
         // because of the way this graph class is set up sources and destinations can be discovered
         // to be vertices. because hashmap keys don't duplicate we wont duplicate vertex entries
         Vertex v1 = new Vertex(source);
@@ -50,47 +50,46 @@ public class Graph<T> {
         ArrayList<Edge> temp2 = new ArrayList<>();
         Edge e = new Edge(v1, destination, weight);
         edges.add(e);                             // we are alrady adding the desitation as and edge so only dong v1 as vertex not v2
-        numEdges ++;
+        numEdges++;
         if (!(vertices.containsKey(v1))) {
             numVertices++;
             temp1.add(e);
             vertices.put(v1, temp1);
         } else {
-              temp1 = vertices.get(v1);             //get the current list 
+            temp1 = vertices.get(v1);             //get the current list 
             temp1.add(e);                           // add new edge to it
             vertices.put(v1, temp1);                /// place newwly added edge into hashmap
-        
+
         }
         Edge f = new Edge(v2, source, weight);   // new edge with detination now as vertex adn source as next destination
         edges.add(f);
-        numEdges ++;
+        numEdges++;
         if (!(vertices.containsKey(v2))) {
             numVertices++;
             temp2.add(f);
             vertices.put(v2, temp2);
         } else {
-            
-              temp2 = vertices.get(v2);     
+
+            temp2 = vertices.get(v2);
             temp2.add(f);
             vertices.put(v2, temp2);
-        
-           
+
         }
 
     }
 
-    public String getFormattedGraph(){
-    String returnString= "";
-    for (Map.Entry<Vertex,ArrayList <Edge>> entry :vertices.entrySet()) {
-		    returnString+= (entry.getKey() + " ");
-                    for (int i = 0; i < entry.getValue().size(); i++) {
-                        
-                           returnString+=(entry.getValue().get(i).getDestination() + ":" + entry.getValue().get(i).getWeight() +" " );
+    public String getFormattedGraph() {
+        String returnString = "";
+        for (Map.Entry<Vertex, ArrayList<Edge>> entry : vertices.entrySet()) {
+            returnString += (entry.getKey() + " ");
+            for (int i = 0; i < entry.getValue().size(); i++) {
+
+                returnString += (entry.getValue().get(i).getDestination() + ":" + entry.getValue().get(i).getWeight() + " ");
+            }
+            returnString += "\n";  // one more hard return
         }
-                   returnString += "\n";  // one more hard return
-		}
-      return returnString;
-    
+        return returnString;
+
     }
 
     public ArrayList<Edge> getEdges() {
@@ -114,7 +113,27 @@ public class Graph<T> {
     public int getNumEdges() {
         return numEdges;
     }
-   
+
+    public boolean isVertexInGraph(T vertex) {
+        for (Map.Entry<Vertex, ArrayList<Edge>> entry : vertices.entrySet()) {
+            if (vertex.toString().compareTo(entry.getKey().getName().toString()) == 0){
+            return true;
+            
+            }
+        }
+        return false;
+    }
+
+    public boolean isEdgeInGraph(Edge edge) {
+        for (Map.Entry<Vertex, ArrayList<Edge>> entry : vertices.entrySet()) {
+            for (int i = 0; i < entry.getValue().size(); i++) {
+                if (edge.equals(entry.getValue().get(i))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     /**
      * Quick method for sorting the graph edge nodes in order by weight.
@@ -146,6 +165,39 @@ public class Graph<T> {
 
         public int getWeight() {
             return weight;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 23 * hash + Objects.hashCode(this.vertex);
+            hash = 23 * hash + Objects.hashCode(this.destination);
+            hash = 23 * hash + this.weight;
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final Edge<?> other = (Edge<?>) obj;
+            if (this.weight != other.weight) {
+                return false;
+            }
+            if (!Objects.equals(this.vertex, other.vertex)) {
+                return false;
+            }
+            if (!Objects.equals(this.destination, other.destination)) {
+                return false;
+            }
+            return true;
         }
 
         /**
@@ -250,8 +302,9 @@ public class Graph<T> {
 
         /**
          * Override how to compare two objects
+         *
          * @param o
-         * @return 
+         * @return
          */
         @Override
         public int compareTo(Vertex o) {
